@@ -15,13 +15,13 @@ from utils.dataset import Dataset
 
 warnings.filterwarnings("ignore")
 
-data_dir = '../Dataset/BTXRD'
+data_dir = './BTXRD' # data_dir = '../Dataset/BTXRD'
 
 
 def train(args, params):
     # Model
-    channels = [3, 64, 128, 256, 512]  # channels for each stage
-    model = nn.YOLOv11MTB(channels, 2)
+    channels = [3, 64, 128, 256, 512, 1024]  # channels for each stage
+    model = nn.YOLOv11MTB(channels, 8)
     model.cuda()
 
     # Optimizer
@@ -35,10 +35,10 @@ def train(args, params):
     ema = util.EMA(model) if args.local_rank == 0 else None
 
     filenames = []
-    with open(f'{data_dir}/train2017.txt') as f:
+    with open(f'{data_dir}/train.txt') as f:
         for filename in f.readlines():
             filename = os.path.basename(filename.rstrip())
-            filenames.append(f'{data_dir}/images/train2017/' + filename)
+            filenames.append(f'{data_dir}/images/train/' + filename)
 
     sampler = None
     dataset = Dataset(filenames, args.input_size, params, augment=True)
@@ -93,7 +93,7 @@ def train(args, params):
                 step = i + num_steps * epoch
                 scheduler.step(step, optimizer)
 
-                samples = samples.cuda().float() / 255
+                samples = samples.cuda().float() / 255   
 
                 # Forward
                 with torch.amp.autocast('cuda'):
@@ -243,11 +243,10 @@ def test(args, params, model=None):
 def profile(args, params):
     import thop
     shape = (1, 3, args.input_size, args.input_size)
-    channels = [3, 64, 128, 256, 512, 1024] 
-    model = nn.YOLOv11MTB(channels, len(params['names'])).fuse()
+    model = nn.YOLOv11MTB(channels=[3, 64, 128, 256, 512, 1024], num_classes=len(params['names'])).fuse()
 
     model.eval()
-    model(torch.zeros(shape))
+    model(torch.zeros(shape), view_labels=None)
 
     x = torch.empty(shape)
     flops, num_params = thop.profile(model, inputs=[x], verbose=False)
@@ -261,7 +260,7 @@ def profile(args, params):
 def main():
     parser = ArgumentParser()
     parser.add_argument('--input-size', default=640, type=int)
-    parser.add_argument('--batch-size', default=32, type=int)
+    parser.add_argument('--batch-size', default=2, type=int)
     parser.add_argument('--local-rank', default=0, type=int)
     parser.add_argument('--local_rank', default=0, type=int)
     parser.add_argument('--epochs', default=600, type=int)
@@ -288,12 +287,12 @@ def main():
     util.setup_seed()
     util.setup_multi_processes()
 
-    profile(args, params)
+    # profile(args, params)
 
-    if args.train:
-        train(args, params)
-    if args.test:
-        test(args, params)
+    # if args.train:
+    train(args, params)
+    # if args.test:
+    test(args, params)
 
     # Clean
     if args.distributed:

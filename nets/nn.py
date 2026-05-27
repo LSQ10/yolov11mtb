@@ -853,7 +853,7 @@ class Head(torch.nn.Module):
         self.anchors, self.strides = (i.transpose(0, 1) for i in make_anchors(x, self.stride))
         x = torch.cat([i.view(x[0].shape[0], self.no, -1) for i in x], dim=2)
         box, cls = x.split(split_size=(4 * self.ch, self.nc), dim=1)
-
+        
         a, b = self.dfl(box).chunk(2, 1)
         a = self.anchors.unsqueeze(0) - a
         b = self.anchors.unsqueeze(0) + b

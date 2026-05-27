@@ -209,8 +209,8 @@ class Dataset(data.Dataset):
                 assert image.format.lower() in FORMATS, f'invalid image format {image.format}'
 
                 # verify labels
-                a = f'{os.sep}images{os.sep}'
-                b = f'{os.sep}labels{os.sep}'
+                a = f'images'
+                b = f'labels'
                 if os.path.isfile(b.join(filename.rsplit(a, 1)).rsplit('.', 1)[0] + '.txt'):
                     with open(b.join(filename.rsplit(a, 1)).rsplit('.', 1)[0] + '.txt') as f:
                         label = [x.split() for x in f.read().strip().splitlines() if len(x)]

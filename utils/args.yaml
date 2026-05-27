@@ -18,11 +18,11 @@ flip_lr: 0.50000000000            # image flip left-right (probability)
 mosaic: 1.000000000000            # image mosaic (probability)
 mix_up: 0.000000000000            # image mix-up (probability)
 names:
-  0: person
-  1: bicycle
-  2: car
-  3: motorcycle
-  4: airplane
-  5: bus
-  6: train
-  7: truck
+  0: tumor
+  1: other mt
+  2: other bt
+  3: osteosarcoma
+  4: osteochondroma
+  5: simple bone cyst
+  6: giant cell tumor
+  7: osteofibroma
