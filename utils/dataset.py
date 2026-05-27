@@ -196,7 +196,7 @@ class Dataset(data.Dataset):
     def load_label(filenames):
         path = f'{os.path.dirname(filenames[0])}.cache'
         if os.path.exists(path):
-            return torch.load(path, weights_only=False)
+            return torch.load(path)
         x = {}
         for filename in filenames:
             try:
